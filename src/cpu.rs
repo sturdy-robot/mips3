@@ -1,5 +1,4 @@
-
-use crate::instructions::{Instruction, extract_opcode, decode_instruction };
+use crate::instructions::decode_instruction;
 
 const GPR_REGISTERS: usize = 32;
 
@@ -23,7 +22,7 @@ impl Cpu {
         }
     }
 
-    pub fn reset (&mut self) {
+    pub fn reset(&mut self) {
         self.registers = [0; GPR_REGISTERS];
         self.hi = 0;
         self.lo = 0;
@@ -77,7 +76,7 @@ impl Cpu {
         self.memory[addr..addr + 4].copy_from_slice(&bytes);
     }
 
-    pub fn run(& mut self) {
+    pub fn run(&mut self) {
         loop {
             let pc = self.get_pc();
             let instruction_word = self.read_word(self.get_pc());
@@ -149,11 +148,79 @@ mod tests {
     }
 
     #[test]
+    fn test_addi_andi_ori() {
+        let mut cpu = create_cpu();
+        cpu.write_register(1, 5);
+        cpu.write_register(2, 10);
+        cpu.instr_addi(2, 3, 10);
+        assert_eq!(cpu.read_register(3), 20);
+        cpu.instr_andi(1, 4, 15);
+        assert_eq!(cpu.read_register(4), 5);
+        cpu.instr_ori(2, 5, 25);
+        assert_eq!(cpu.read_register(5), 27);
+    }
+
+    #[test]
+    fn test_slt() {
+        let mut cpu = create_cpu();
+        cpu.write_register(1, 5);
+        cpu.write_register(2, 10);
+        cpu.instr_slt(1, 2, 3);
+        assert_eq!(cpu.read_register(3), 1);
+    }
+
+    #[test]
+    fn test_bne() {
+        let mut cpu = create_cpu();
+        cpu.write_register(1, 5);
+        cpu.write_register(2, 10);
+        cpu.set_pc(0);
+        cpu.instr_bne(1, 2, 4);
+        assert_eq!(cpu.get_pc(), 16);
+    }
+
+    #[test]
+    fn test_j() {
+        let mut cpu = create_cpu();
+        cpu.set_pc(8);
+        cpu.instr_j(16);
+        assert_eq!(cpu.get_pc(), 64);
+    }
+
+    #[test]
+    fn test_jr() {
+        let mut cpu = create_cpu();
+        cpu.write_register(2, 12);
+        cpu.set_pc(8);
+        cpu.instr_jr(2);
+        assert_eq!(cpu.get_pc(), 48);
+    }
+
+    #[test]
+    fn test_jalr() {
+        let mut cpu = create_cpu();
+        cpu.write_register(2, 12);
+        cpu.set_pc(8);
+        cpu.instr_jalr(2);
+        assert_eq!(cpu.get_pc(), 48);
+        assert_eq!(cpu.read_register(31), 12);
+    }
+
+    #[test]
+    fn test_jal() {
+        let mut cpu = create_cpu();
+        cpu.set_pc(8);
+        cpu.instr_jal(16);
+        assert_eq!(cpu.get_pc(), 64);
+        assert_eq!(cpu.read_register(31), 12);
+    }
+
+    #[test]
     fn test_program() {
         let mut cpu = create_cpu();
 
-        cpu.memory[0..4].copy_from_slice(&0x00430820u32.to_be_bytes());  // add R1, R2, R3
-        cpu.memory[4..8].copy_from_slice(&0x00222022u32.to_be_bytes());  // sub R4, R1, R2
+        cpu.memory[0..4].copy_from_slice(&0x00430820u32.to_be_bytes()); // add R1, R2, R3
+        cpu.memory[4..8].copy_from_slice(&0x00222022u32.to_be_bytes()); // sub R4, R1, R2
         cpu.memory[8..12].copy_from_slice(&0x8CC50000u32.to_be_bytes()); // lw R5, 0(R6)
         cpu.memory[12..16].copy_from_slice(&0xACC50000u32.to_be_bytes()); // sw R5, 0(R6)
 

@@ -1,8 +1,20 @@
 #[derive(Debug)]
 pub enum Instruction {
-    RType { rs: usize, rt: usize, rd: usize, shamt: u32, func: u32 },
-    IType { rs: usize, rt: usize, immediate: u32 },
-    JType { address: u32 },
+    RType {
+        rs: usize,
+        rt: usize,
+        rd: usize,
+        sa: u32,
+        func: u32,
+    },
+    IType {
+        rs: usize,
+        rt: usize,
+        immediate: u32,
+    },
+    JType {
+        address: u32,
+    },
     Unknown,
 }
 
@@ -14,10 +26,16 @@ fn decode_r_type(instruction: u32) -> Instruction {
     let rs = ((instruction >> 21) & 0x1F) as usize;
     let rt = ((instruction >> 16) & 0x1F) as usize;
     let rd = ((instruction >> 11) & 0x1F) as usize;
-    let shamt = (instruction >> 6) & 0x1F;
+    let sa = (instruction >> 6) & 0x1F;
     let func = instruction & 0x3F;
 
-    Instruction::RType { rs, rt, rd, shamt, func }
+    Instruction::RType {
+        rs,
+        rt,
+        rd,
+        sa,
+        func,
+    }
 }
 
 fn decode_i_type(instruction: u32) -> Instruction {

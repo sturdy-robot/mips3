@@ -200,10 +200,14 @@ mod tests {
     fn test_jalr() {
         let mut cpu = create_cpu();
         cpu.write_register(2, 12);
+        cpu.write_register(1, 56);
         cpu.set_pc(8);
-        cpu.instr_jalr(2);
+        cpu.instr_jalr(2, 31);
         assert_eq!(cpu.get_pc(), 48);
         assert_eq!(cpu.read_register(31), 12);
+        cpu.instr_jalr(1, 3);
+        assert_eq!(cpu.get_pc(), 224);
+        assert_eq!(cpu.read_register(3), 52);
     }
 
     #[test]

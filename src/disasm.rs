@@ -43,6 +43,13 @@ impl Cpu {
             } => match func {
                 0x00 => format!("sll   R{}, R{}, {}", rd, rt, sa),
                 0x08 => format!("jr    R{}", rs),
+                0x09 => {
+                    if rd == 31 {
+                        format!("jalr  R{}", rs)
+                    } else {
+                        format!("jalr  R{}, R{}", rd, rs)
+                    }
+                }
                 0x20 => format!("add   R{}, R{}, R{}", rd, rs, rt),
                 0x22 => format!("sub   R{}, R{}, R{}", rd, rs, rt),
                 0x24 => format!("and   R{}, R{}, R{}", rd, rs, rt),

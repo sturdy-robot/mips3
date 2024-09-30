@@ -13,6 +13,7 @@ impl Cpu {
             } => match func {
                 0x00 => self.instr_sll(rt, rd, sa),
                 0x08 => self.instr_jr(rs),
+                0x09 => self.instr_jalr(rs, rd),
                 0x20 => self.instr_add(rs, rt, rd),
                 0x22 => self.instr_sub(rs, rt, rd),
                 0x24 => self.instr_and(rs, rt, rd),
@@ -190,9 +191,9 @@ impl Cpu {
     }
 
     #[inline(always)]
-    pub fn instr_jalr(&mut self, rs: usize) {
+    pub fn instr_jalr(&mut self, rs: usize, rd: usize) {
         let pc = self.get_pc().wrapping_add(4);
-        self.write_register(31, pc);
+        self.write_register(rd, pc);
         self.instr_jr(rs);
     }
 }
